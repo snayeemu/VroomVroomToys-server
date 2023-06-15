@@ -35,6 +35,20 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/toy/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await toyCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.get("/my-toy/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { sellerEmail: email };
+      const result = await toyCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // post
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -43,6 +57,41 @@ async function run() {
       if (existingUser) return res.send({ message: "already exists" });
 
       const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.post("/toy", async (req, res) => {
+      const toy = req.body;
+
+      const result = await toyCollection.insertOne(toy);
+      res.send(result);
+    });
+
+    // patch
+    app.patch("/update-toy", async (req, res) => {
+      const updateInfo = req.body;
+      const id = updateInfo.id;
+      const query = { _id: new ObjectId(id) };
+      let toy = await toyCollection.findOne(query);
+      if (toy) {
+        toy = {
+          $set: {
+            price: updateInfo.price,
+            availableQuantity: updateInfo.availableQuantity,
+            detailDescription: updateInfo.detailDescription,
+          },
+        };
+      } else return res.send({ error: "class not found" });
+
+      const result = await toyCollection.updateOne(query, toy);
+      res.send(result);
+    });
+
+    // delete
+    app.delete("/toy/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await toyCollection.deleteOne(query);
       res.send(result);
     });
 
