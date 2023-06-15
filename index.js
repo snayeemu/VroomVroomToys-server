@@ -27,7 +27,15 @@ async function run() {
     // await client.connect();
 
     const userCollection = client.db("toyDb").collection("users");
+    const toyCollection = client.db("toyDb").collection("toys");
 
+    // get
+    app.get("/toys", async (req, res) => {
+      const result = await toyCollection.find().toArray();
+      res.send(result);
+    });
+
+    // post
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
